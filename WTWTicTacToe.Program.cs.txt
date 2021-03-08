@@ -1,0 +1,269 @@
+﻿using System;
+using System.Text;
+
+namespace WTWTicTacToe
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //
+            // Side should be >= 3.
+            //
+            const int side = 5;
+            TicTacToe ttt = new TicTacToe(side);
+            bool gameOver = false;
+            int rtn  = 0;
+            int row = 0;
+            int col = 0;
+            int playerNo = 0;
+            string val = "";
+            string winPlayer1 = ttt.SetWinningString('X', side);
+            string winPlayer2 = ttt.SetWinningString('O', side);
+
+
+            try
+            {
+                while (row != 999 && gameOver == false)
+                {
+                    Console.WriteLine("TO QUIT, enter EXIT or exit. Otherwise enter int for row. (Zero-based array.)");
+                    val = Console.ReadLine();
+                    //
+                    // Exit -- user entered 999.
+                    //
+                    if (val.Trim().ToUpper() == "EXIT")
+                    {
+                        Environment.Exit(0);
+                    }
+
+                    row = Convert.ToInt32(val);
+
+                    if (row < 0 || row >= side)
+                    {
+                        throw new Exception("Row must be between 0 and " + side.ToString() + " or 999.");
+                    }
+ 
+                    Console.WriteLine("Enter int for column. (Zero-based array.)");
+                    val = Console.ReadLine();
+                    col = Convert.ToInt32(val);
+
+                    if (col < 0 || col >= side)
+                    {
+                        throw new Exception("Row must be between 0 and " + side.ToString());
+                    }
+
+                    Console.WriteLine("Enter 1 for Player 1 or enter 2 for Player 2");
+                    val = Console.ReadLine();
+                    playerNo = Convert.ToInt32(val);
+
+                    if (playerNo < 1 || playerNo > 2)
+                    {
+                        throw new Exception("Player no. must be 1 or 2.");
+                    }
+
+                    rtn = ttt.PlacePiece(row, col, playerNo);
+
+                    if (rtn == 1 || rtn == 2)
+                    {
+                        gameOver = true;
+                    }
+
+                    Console.WriteLine("Return is " + rtn.ToString());
+
+                    if (gameOver == true)
+                    {
+                        Console.WriteLine("GAME OVER.");
+                    }
+            }
+
+                //
+                // Pause display. Hit Enter key to close console window.
+                //
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                //
+                // Display error info.
+                //
+                Console.WriteLine(ex.Message);
+                //
+                // Pause display. Hit Enter key to close console window.
+                //
+                Console.ReadLine();
+            }
+        }
+    }
+
+        public class TicTacToe
+        {
+            /// <summary>
+            /// Create a TicTacToe game board.
+            /// </summary>
+            /// <param name="n">n x n dimension for the game</param>
+            /// 
+            string[,] gameBoard;
+            string winner1String;
+            string winner2String;
+            int lastPlayer = 0;
+            int side = 0;
+     
+
+            public TicTacToe(int n)
+            {
+                side = n;
+                gameBoard = new string[n,n];
+                winner1String = SetWinningString('X', side);
+                winner2String = SetWinningString('O', side);
+            }
+
+            /// <summary>
+            /// Place a piece on the game board.
+            /// <param name="row">row to place a piece</param>
+            /// <param name="col">column to place a piece</param>
+            /// <param name="player">the player (1 or 2) the piece is for</param>
+            /// <returns>0 = no winner, 1 = player 1 won, 2 = player 2 won</returns>
+            /// </summary>
+            public int PlacePiece(int row, int col, int player)
+            {
+                int result = 0;
+                StringBuilder sb = new StringBuilder();
+                string symbol = "";
+
+                //
+                // Spot already has X or O.
+                //
+                if (gameBoard[row, col] == "X" || gameBoard[row, col] == "O")
+                {
+                    return -1;
+                }
+
+            //
+            // Player can't take two turns in a row.
+            //
+            if (lastPlayer == 1 && player == 1)
+            {
+                return -2;
+            }
+
+            if (lastPlayer == 2 && player == 2)
+            {
+                return -2;
+            }
+
+            try
+                {
+                    if (player == 1)
+                    {
+                        symbol = "X";
+                        lastPlayer = 1;
+                    }
+                    else
+                    {
+                        symbol = "O";
+                        lastPlayer = 2;
+                    }
+
+                    gameBoard[row, col] = symbol;
+
+                    //
+                    // Check diagonal top left to bottom right.
+                    //
+                    sb.Clear();
+                    for (int i =0; i < side; i++)
+                    {
+                       sb.Append(gameBoard[i, i]);
+                    }
+
+                    if (sb.ToString() == winner1String)
+                    {
+                        return 1;
+                    }
+
+                    if (sb.ToString() == winner2String)
+                    {
+                        return 2;
+                    }
+
+                    //
+                    // Check diagonal top right to bottom left.
+                    //
+                    sb.Clear();
+                    for (int i =0; i < side; i++)
+                    {
+                        for (int j = side-1; j >= 0; j--)
+                        {
+                            sb.Append(gameBoard[i, j]);
+                        }
+                    }
+
+                    if (sb.ToString() == winner1String)
+                    {
+                        return 1;
+                    }
+
+                    if (sb.ToString() == winner2String)
+                    {
+                        return 2;
+                    }
+
+                    //
+                    // Check current row.
+                    //
+                    sb.Clear();
+                    for (int j =0; j < side; j++)
+                    {
+                        sb.Append(gameBoard[row, j]);
+                    }
+
+                    if (sb.ToString() == winner1String)
+                    {
+                        return 1;
+                    }
+
+                    if (sb.ToString() == winner2String)
+                    {
+                        return 2;
+                    }
+
+                    //
+                    // Check current column.
+                    //
+                    sb.Clear();
+                    for (int j = 0; j < side; j++)
+                    {
+                        sb.Append(gameBoard[j, col]);
+                    }
+
+                    if (sb.ToString() == winner1String)
+                    {
+                        return 1;
+                    }
+
+                    if (sb.ToString() == winner2String)
+                    {
+                        return 2;
+                    }
+
+                    return result;
+                }
+                catch
+                {
+                    throw;
+                }
+            }
+
+        public string SetWinningString(char Character, int Len)
+        {
+            StringBuilder sb = new StringBuilder(Len);
+
+            for(int i = 0; i < Len; i++)
+            {
+                sb.Append(Character);
+            }
+
+            return sb.ToString();
+        }
+        
+    }
+}

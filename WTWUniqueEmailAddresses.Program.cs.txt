@@ -1,0 +1,120 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Linq;
+
+namespace WTWUniqueEmailAddresses
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Solution s = new Solution();
+
+            //string[] arrEmails = new string[0];
+            //string[] arrEmails = { "" };
+            //string[] arrEmails = { "", "jmosher@visualinfo.biz" };
+            string[] arrEmails = { "first.m.last@somewhere.com", "team.1+bob@somewhere.com", "team1+jill+bob@somewhere.com", "team2@some.where.com", "team2@somewhere.com" };
+
+            try
+            {
+
+                int numUnique = s.NumberOfUniqueEmailAddresses(arrEmails);
+
+                Console.WriteLine("Number of unique valid email addresses is " + numUnique + ".");
+
+                //
+                // Pause display. Hit Enter key to close console window.
+                //
+                Console.ReadLine();
+            }
+            catch (Exception ex)
+            {
+                //
+                // Display error info.
+                //
+                Console.WriteLine(ex.Message);
+                //
+                // Pause display. Hit Enter key to close console window.
+                //
+                Console.ReadLine();
+            }
+        }
+    }
+
+        public class Solution
+        {
+            public int NumberOfUniqueEmailAddresses(string[] emails)
+            {
+                 List<string> listUniqueEmails = new List<string>();
+
+                //
+                // Empty array: Return zero.
+                //
+                if (emails.Length == 0)
+                {
+                    return 0;
+                }
+
+            try
+            {
+                for (int i = 0; i < emails.Length; i++)
+                {
+                    //
+                    // Make sure it is a valid email address.
+                    // Exclude null and empty value, empty 
+                    // local-part, empty domain name, etc.
+                    // 
+                    if (IsValidEmail(emails[i]))
+                    {
+                        //
+                        // Split string by "@" symbol.
+                        //
+                        string[] parts = emails[i].Split('@');
+
+                        string localPartFull = parts[0].Trim();
+                        string domainName = parts[1].Trim();
+
+                        //
+                        // Remove periods from local-part.
+                        //
+                        string localPartCleaned = localPartFull.Replace(".", "");
+
+                        //
+                        // Split off any recipients within local-part.
+                        // They start with "+" sign.
+                        //
+                        string[] localPartArray = localPartCleaned.Split('+');
+                        string localPart = localPartArray[0];
+
+                        //
+                        // Now put parts back together and add 
+                        // to the listUniqueEmails array.
+                        //
+                        listUniqueEmails.Add(localPart + "@" + domainName);
+
+                    }
+                }
+
+                return listUniqueEmails.Distinct().ToList().Count;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        //
+        // IsValidEmail
+        //
+        // From https://stackoverflow.com/questions/1365407/c-sharp-code-to-validate-email-address
+        // No. 18
+        //
+        public bool IsValidEmail(string email)
+            {
+                string pattern = @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|" + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)" + @"@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$";
+                var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+                return regex.IsMatch(email);
+            }
+    }
+}
